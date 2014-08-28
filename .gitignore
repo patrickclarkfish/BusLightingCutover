@@ -43,3 +43,13 @@ Icon
 *.atsuo
 *.atsln
 *.cppproj
+*.d
+*.eep
+*.elf
+*.hex
+*.lss
+*.map
+*.o
+*.srec
+*.mk
+Makefile
