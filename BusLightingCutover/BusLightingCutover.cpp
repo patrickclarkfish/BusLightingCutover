@@ -60,16 +60,22 @@ static bool SaveData(void * data, size_t sz)
 {
 	u_char* bytes = (u_char*)data;
 	eeprom_busy_wait();
-	for(u_int i = 0; i < sz; i++)
+	//Size will be first byte so read is easier.
+	eeprom_write_byte(0, (u_char)size);
+	for(u_int i = 1; i <= sz; i++)
 	{
+		eeprom_busy_wait();
 		eeprom_write_byte((u_char*)i, *bytes);
 		++bytes;
-		eeprom_busy_wait();
 	}
 	return false;	
 }
 
 static size_t LoadData(void * data)
 {
-	return 0;
+	size_t size = 0;
+	//Read size from first byte of eeprom.
+	eeprom_busy_wait();
+	
+	return size;
 }
