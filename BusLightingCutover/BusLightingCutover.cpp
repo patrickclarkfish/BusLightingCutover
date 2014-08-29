@@ -7,6 +7,7 @@
 
 
 #include <avr/io.h>
+#include <avr/sfr_defs.h>
 #include <avr/eeprom.h>
 #include "BusLightingCutover.h"
 
@@ -36,6 +37,63 @@ LightingController::~LightingController()
 		SaveData(data, size);
 }
 
+void LightingController::Set_5A_State(State _state)
+{
+	if(_state == On)
+	{
+		PORTB |= _BV(PINB4);
+		m_5A_State = _state;
+	}
+	else
+	{
+		PORTB &= ~(_BV(PINB4));
+		m_5A_State = _state;
+	}
+}
+
+void LightingController::Set_40A1_State(State _state)
+{
+	if(_state == On)
+	{
+		PORTB |= _BV(PINB5);
+		m_40A1_State = _state;
+	}
+	else
+	{
+		PORTB &= ~(_BV(PINB5));
+		m_40A1_State = _state;
+	}
+}
+
+void LightingController::Set_40A2_State(State _state)
+{
+	if(_state == On)
+	{
+		PORTB |= _BV(PINB6);
+		m_40A2_State = _state;
+	}
+	else
+	{
+		PORTB &= ~(_BV(PINB6));
+		m_40A2_State = _state;
+	}
+}
+
+State LightingController::Get_5A_State()
+{
+	return m_5A_State;
+}
+
+State LightingController::Get_40A1_State()
+{
+	return m_40A1_State;
+}
+
+State LightingController::Get_40A2_State()
+{
+	return m_40A2_State;
+}
+
 size_t LightingController::Serialize(void * lc)
 {
 	return true;
@@ -56,6 +114,16 @@ bool LightingController::IsValidLightingController(void * lc, size_t sz)
 {
 	return false;
 }
+
+size_t LightingController::SizeOf()
+{
+	size_t retVal = 0;
+	retVal += sizeof(m_5A_State);
+	retVal += sizeof(m_40A1_State);
+	retVal += sizeof(m_40A2_State);
+	return retVal;	
+}
+
 static bool SaveData(void * data, size_t sz)
 {
 	u_char* bytes = (u_char*)data;
@@ -85,4 +153,13 @@ static size_t LoadData(void * data)
 		++bytes;
 	}
 	return size;
+}
+
+static int uart_putchar(char c, FILE *stream)
+{
+	if (c == '\n')
+	uart_putchar('\r', stream);
+	loop_until_bit_is_set(UCSRA, UDRE);
+	UDR = c;
+	return 0;
 }
