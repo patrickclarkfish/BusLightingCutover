@@ -38,18 +38,18 @@ LightingController::~LightingController()
 
 size_t LightingController::Serialize(void * lc)
 {
-	return false;
+	return true;
 }
 
 	
 bool LightingController::Deserialize(void * lc, size_t sz)
 {
+	bool successfulLoad = false;
 	if(IsValidLightingController(lc, sz))
 	{
 		
-		return true;	
 	}
-	return false;
+	return successfulLoad;
 }
 
 bool LightingController::IsValidLightingController(void * lc, size_t sz)
@@ -61,7 +61,7 @@ static bool SaveData(void * data, size_t sz)
 	u_char* bytes = (u_char*)data;
 	eeprom_busy_wait();
 	//Size will be first byte so read is easier.
-	eeprom_write_byte(0, (u_char)size);
+	eeprom_write_byte(0, (u_char)sz);
 	for(u_int i = 1; i <= sz; i++)
 	{
 		eeprom_busy_wait();
@@ -76,6 +76,13 @@ static size_t LoadData(void * data)
 	size_t size = 0;
 	//Read size from first byte of eeprom.
 	eeprom_busy_wait();
-	
+	size = eeprom_read_byte(0);
+	u_char* bytes = (u_char*)data;
+	for(u_int i = 1; i <= size; i++)
+	{
+		eeprom_busy_wait();
+		*bytes = eeprom_read_byte((u_char*)i);
+		++bytes;
+	}
 	return size;
 }
